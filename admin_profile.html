@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Profile - T's Hairs Plus 💖</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family:'Montserrat', sans-serif;
+  background:#fff0f5;
+  color:#333;
+}
+
+header{
+  background:#ff69b4;
+  color:white;
+  padding:15px 20px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  position:sticky;
+  top:0;
+  z-index:99;
+  flex-wrap:wrap;
+}
+
+header h1{
+  font-family:'Pacifico', cursive;
+  margin:0;
+  font-size:28px;
+}
+
+.container{
+  max-width:600px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.back-btn{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-bottom:15px;
+  transition:0.2s;
+}
+.back-btn:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.profile-img{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  border:2px solid #ff1493;
+  display:block;
+  margin:0 auto 15px;
+  object-fit:cover;
+}
+
+h2{
+  text-align:center;
+  color:#ff1493;
+  margin-bottom:20px;
+}
+
+.profile-info p{
+  margin:8px 0;
+  font-weight:bold;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button.update-btn{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:#ff1493;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
+}
+button.update-btn:hover{
+  background:#ff69b4;
+}
+
+.change-pass{
+  margin-top:20px;
+  padding-top:10px;
+  border-top:1px solid #ffb6c1;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Admin Profile 💖</h1>
+</header>
+
+<div class="container">
+  <button class="back-btn" onclick="goBack()">⬅ Back</button>
+
+  <img src="placeholder.png" alt="Profile Picture" class="profile-img" id="profilePic">
+
+  <h2 id="welcomeText">Welcome, Admin!</h2>
+
+  <div class="profile-info">
+    <p><b>Email:</b> <span id="email">loading...</span></p>
+
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Enter your name">
+
+    <button class="update-btn" onclick="updateName()">Update Name</button>
+  </div>
+
+  <div class="change-pass">
+    <h3 style="color:#ff1493;">Change Password</h3>
+    <label for="newPass">New Password</label>
+    <input type="password" id="newPass" placeholder="Enter new password">
+    <button class="update-btn" onclick="changePassword()">Change Password</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+/* Firebase config */
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
+const emailEl = document.getElementById("email");
+const nameInput = document.getElementById("name");
+const welcomeText = document.getElementById("welcomeText");
+const profilePic = document.getElementById("profilePic");
+
+onAuthStateChanged(auth, async user => {
+  if(user){
+    currentUser = user;
+    emailEl.textContent = user.email;
+
+    // Fetch user data from Firestore
+    const docRef = doc(db,"users",user.uid);
+    const docSnap = await getDoc(docRef);
+    if(docSnap.exists()){
+      const data = docSnap.data();
+      nameInput.value = data.name || "";
+      welcomeText.textContent = `Welcome, ${data.name || "Admin"}!`;
+      if(data.profilePic) profilePic.src = data.profilePic;
+    }
+  } else {
+    window.location.href = "login.html";
+  }
+});
+
+window.updateName = async ()=>{
+  const newName = nameInput.value.trim();
+  if(!newName){
+    alert("Enter a valid name!");
+    return;
+  }
+
+  try{
+    const docRef = doc(db,"users",currentUser.uid);
+    await updateDoc(docRef,{name:newName});
+    welcomeText.textContent = `Welcome, ${newName}!`;
+    alert("Name updated successfully 💖");
+  } catch(err){
+    console.error(err);
+    alert("Failed to update name.");
+  }
+};
+
+window.changePassword = async ()=>{
+  const newPass = document.getElementById("newPass").value.trim();
+  if(newPass.length < 6){
+    alert("Password must be at least 6 characters.");
+    return;
+  }
+
+  try{
+    await updatePassword(currentUser,newPass);
+    alert("Password changed successfully 💖");
+    document.getElementById("newPass").value = "";
+  } catch(err){
+    console.error(err);
+    alert("Failed to change password. You may need to re-login.");
+  }
+};
+
+window.goBack = ()=>{
+  window.location.href = "admin_home.html";
+};
+</script>
+
+</body>
+</html>

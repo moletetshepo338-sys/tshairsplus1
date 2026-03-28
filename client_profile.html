@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Profile - T's Hairs Plus</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+      authDomain: "store-web-beadb.firebaseapp.com",
+      projectId: "store-web-beadb",
+      storageBucket: "store-web-beadb.appspot.com",
+      messagingSenderId: "878106383556",
+      appId: "1:878106383556:web:0eda586be105812d896591",
+      measurementId: "G-5TS1981CQP"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Display user info from Firestore
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userDoc);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById('clientName').textContent = data.name || "N/A";
+          document.getElementById('clientEmail').textContent = user.email;
+        } else {
+          console.log("No user document found!");
+        }
+      } else {
+        // Not logged in → redirect
+        window.location.href = "login.html";
+      }
+    });
+
+    // Change password
+    window.changePassword = async () => {
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const messageEl = document.getElementById('message');
+
+      if (!newPassword || !confirmPassword) {
+        messageEl.style.color = 'red';
+        messageEl.textContent = "Please fill in both fields.";
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        messageEl.style.color = 'red';
+        messageEl.textContent = "Passwords do not match.";
+        return;
+      }
+
+      try {
+        await updatePassword(auth.currentUser, newPassword);
+        messageEl.style.color = 'green';
+        messageEl.textContent = "Password updated successfully!";
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+      } catch (error) {
+        messageEl.style.color = 'red';
+        messageEl.textContent = error.message;
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #fff0f5;
+      color: #333;
+    }
+
+    header {
+      background: #ff69b4;
+      color: white;
+      padding: 1.5rem 2rem;
+      font-family: 'Pacifico', cursive;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #ff1493;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .profile-info {
+      margin-bottom: 2rem;
+    }
+
+    .profile-info p {
+      margin: 0.5rem 0;
+      font-weight: 500;
+    }
+
+    label {
+      display: block;
+      margin: 0.5rem 0 0.2rem 0;
+      font-weight: 600;
+      color: #ff1493;
+    }
+
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #ff69b4;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #ff1493;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    T's Hairs Plus
+  </header>
+
+  <div class="container">
+    <h2>My Profile</h2>
+
+    <div class="profile-info">
+      <p><strong>Name:</strong> <span id="clientName">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="clientEmail">Loading...</span></p>
+    </div>
+
+    <h3 style="text-align:center; color:#ff1493;">Change Password</h3>
+    <label for="newPassword">New Password</label>
+    <input type="password" id="newPassword" placeholder="Enter new password">
+
+    <label for="confirmPassword">Confirm Password</label>
+    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+
+    <button onclick="changePassword()">Change Password</button>
+
+    <p class="message" id="message"></p>
+  </div>
+
+</body>
+</html>

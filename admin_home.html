@@ -1,0 +1,308 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<title>Admin Home - T's Hairs Plus</title>  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+
+<!-- Google Fonts -->  
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">  
+
+<style>  
+body {  
+  margin: 0;  
+  font-family: 'Montserrat', sans-serif;  
+  background: #fff0f5;  
+  color: #333;  
+}  
+
+/* Header */  
+header {  
+  display: flex;  
+  justify-content: flex-start;  
+  align-items: center;  
+  padding: 20px 30px;  
+  background: white;  
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);  
+  flex-wrap: wrap;  
+  position: sticky;  
+  top: 0;  
+  z-index: 99;  
+}  
+
+.logo-container {  
+  display: flex;  
+  align-items: center;  
+  cursor: pointer;  
+}  
+
+.logo-container img {  
+  height: 90px;  
+  margin-right: 15px;  
+  border-radius: 15px;  
+  border: 2px solid #ff69b4;  
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);  
+}  
+
+.logo-container h1 {  
+  margin: 0;  
+  font-family: 'Pacifico', cursive;  
+  color: #ff69b4;  
+  font-size: 42px;  
+  letter-spacing: 1px;  
+}  
+
+.main-nav {  
+  display: flex;  
+  gap: 12px;  
+  margin-left: 30px;  
+  flex-wrap: wrap;  
+  align-items: center;  
+}  
+
+.main-nav button {  
+  padding: 8px 15px;  
+  font-size: 14px;  
+  border: none;  
+  background: #ff69b4;  
+  color: white;  
+  border-radius: 20px;  
+  cursor: pointer;  
+  font-weight: 600;  
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);  
+  transition: background 0.3s ease, transform 0.2s ease;  
+}  
+
+.main-nav button:hover {  
+  background: #ff1493;  
+  transform: scale(1.05);  
+}  
+
+/* Drawer toggle button */  
+#drawerToggle {  
+  margin-left:auto;  
+  padding:8px 15px;  
+  font-size:14px;  
+  border:none;  
+  background:#ff69b4;  
+  color:white;  
+  border-radius:20px;  
+  cursor:pointer;  
+  font-weight:600;  
+  box-shadow:0 3px 6px rgba(0,0,0,0.15);  
+  transition:background 0.3s ease, transform 0.2s ease;  
+}  
+
+#drawerToggle:hover {  
+  background:#ff1493;  
+  transform: scale(1.05);  
+}  
+
+/* Container */  
+.container {  
+  padding: 20px;  
+  max-width: 1200px;  
+  margin: auto;  
+}  
+
+/* Welcome Message */  
+.welcome {  
+  text-align: center;  
+  margin-bottom: 30px;  
+}  
+
+.welcome h2 {  
+  color: #ff1493;  
+}  
+
+/* Dashboard Cards */  
+.dashboard {  
+  display: grid;  
+  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));  
+  gap: 20px;  
+}  
+
+.card {  
+  background: white;  
+  border-radius: 12px;  
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);  
+  padding: 20px;  
+  text-align: center;  
+}  
+
+.card h3 {  
+  margin: 0;  
+  color: #ff1493;  
+  font-size: 18px;  
+}  
+
+.card p {  
+  margin: 10px 0 0;  
+  font-size: 24px;  
+  font-weight: bold;  
+}  
+
+/* Overlay */  
+#drawerOverlay {  
+  position: fixed;  
+  top:0;  
+  left:0;  
+  width:100%;  
+  height:100%;  
+  background: rgba(0,0,0,0.4);  
+  z-index: 999;  
+  opacity: 0;  
+  pointer-events: none;  
+  transition: opacity 0.3s ease;  
+}  
+
+#drawerOverlay.active {  
+  opacity:1;  
+  pointer-events: auto;  
+}  
+
+/* Right Drawer */  
+#rightDrawer {  
+  position: fixed;  
+  top: 0;  
+  right: -300px;  
+  width: 250px;  
+  height: 100%;  
+  background: white;  
+  box-shadow: -3px 0 6px rgba(0,0,0,0.2);  
+  z-index: 1000;  
+  transition: right 0.3s ease;  
+  padding: 20px;  
+  display: flex;  
+  flex-direction: column;  
+  gap: 20px;  
+}  
+
+#rightDrawer h3 {  
+  margin: 0;  
+  color: #ff1493;  
+}  
+
+#rightDrawer button {  
+  padding: 10px;  
+  border: none;  
+  background: #ff69b4;  
+  color: white;  
+  border-radius: 10px;  
+  cursor: pointer;  
+  font-weight: 600;  
+  transition: background 0.3s ease, transform 0.2s ease;  
+}  
+
+#rightDrawer button:hover {  
+  background: #ff1493;  
+  transform: scale(1.05);  
+}  
+</style>  
+</head>  
+
+<body>  
+
+<header>  
+  <div class="logo-container" onclick="window.location='admin_home.html'">  
+    <img src="logo.png" alt="T's Hair Plug Logo">  
+    <h1>T's Hairs Plus Admin</h1>  
+  </div>  
+  <div class="main-nav">  
+    <button onclick="window.location='admin_home.html'">Home</button>  
+    <button onclick="window.location='admin_products.html'">Products</button>  
+    <button onclick="window.location='admin_booking.html'">Bookings</button>  
+    <button onclick="window.location='admin_about.html'">About Us</button>  
+     
+  </div>  
+  <!-- Drawer toggle button -->  
+  <button id="drawerToggle">Menu</button>  
+</header>  
+
+<!-- Overlay -->  
+<div id="drawerOverlay"></div>  
+
+<!-- Right Drawer -->  
+<div id="rightDrawer">  
+  <h3>Admin Menu</h3>  
+  <button onclick="window.location='admin_profile.html'">Profile</button>  
+  <button onclick="window.location='admin_appointments.html'">Booked Appointments</button>  
+  <button onclick="window.location='admin_orders.html'">Placed Orders</button>  
+    <button onclick="window.location='index.html'">Log Out</button>  
+  
+</div>  
+
+<div class="container">  
+  <div class="welcome">  
+    <h2>Welcome, Admin! 💖</h2>  
+    <p>Here’s your dashboard overview</p>  
+  </div>  
+
+  <div class="dashboard">  
+    <div class="card">  
+      <h3>Total Bookings</h3>  
+      <p id="totalBookings">0</p>  
+    </div>  
+    <div class="card">  
+      <h3>Total Products</h3>  
+      <p id="totalProducts">0</p>  
+    </div>  
+    <div class="card">  
+      <h3>Upcoming Appointments</h3>  
+      <p id="upcomingAppointments">0</p>  
+    </div>  
+  </div>  
+</div>  
+
+<script type="module">  
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";  
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";  
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";  
+
+const firebaseConfig = {  
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",  
+  authDomain: "store-web-beadb.firebaseapp.com",  
+  projectId: "store-web-beadb",  
+};  
+
+const app = initializeApp(firebaseConfig);  
+const db = getFirestore(app);  
+const auth = getAuth(app);  
+
+function logout(){  
+  signOut(auth).then(()=>window.location='index.html');  
+}  
+
+// Load dashboard stats  
+async function loadDashboard() {  
+  const bookingsSnapshot = await getDocs(collection(db,"bookings"));  
+  document.getElementById("totalBookings").innerText = bookingsSnapshot.size;  
+
+  const productsSnapshot = await getDocs(collection(db,"products"));  
+  document.getElementById("totalProducts").innerText = productsSnapshot.size;  
+
+  const upcomingQuery = query(collection(db,"bookings"), where("status","==","scheduled"));  
+  const upcomingSnapshot = await getDocs(upcomingQuery);  
+  document.getElementById("upcomingAppointments").innerText = upcomingSnapshot.size;  
+}  
+
+loadDashboard();  
+
+// Drawer toggle
+const drawerToggle = document.getElementById('drawerToggle');
+const rightDrawer = document.getElementById('rightDrawer');
+const drawerOverlay = document.getElementById('drawerOverlay');
+
+drawerToggle.addEventListener('click', () => {
+  rightDrawer.style.right = '0px';
+  drawerOverlay.classList.add('active');
+});
+
+drawerOverlay.addEventListener('click', () => {
+  rightDrawer.style.right = '-300px';
+  drawerOverlay.classList.remove('active');
+});
+</script>  
+
+</body>  
+</html>

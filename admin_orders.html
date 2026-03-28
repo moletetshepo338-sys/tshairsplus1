@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Orders 💖 - T's Hairs Plus</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family: 'Montserrat', sans-serif;
+  background:#fff0f5;
+  color:#333;
+}
+
+/* Header */
+header {
+  display:flex;
+  align-items:center;
+  padding:20px 30px;
+  background:white;
+  box-shadow:0 3px 6px rgba(0,0,0,0.1);
+  position:sticky;
+  top:0;
+  z-index:99;
+}
+
+.logo-container {
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+}
+
+.logo-container img {
+  height:70px;
+  margin-right:15px;
+  border-radius:15px;
+  border:2px solid #ff69b4;
+}
+
+.logo-container h1 {
+  font-family: 'Pacifico', cursive;
+  color:#ff69b4;
+  font-size:32px;
+  margin:0;
+}
+
+/* Drawer toggle button */
+#drawerToggle {
+  margin-left:auto;
+  padding:8px 15px;
+  font-size:14px;
+  border:none;
+  background:#ff69b4;
+  color:white;
+  border-radius:20px;
+  cursor:pointer;
+  font-weight:600;
+  box-shadow:0 3px 6px rgba(0,0,0,0.15);
+  transition:background 0.3s ease, transform 0.2s ease;
+}
+#drawerToggle:hover{
+  background:#ff1493;
+  transform:scale(1.05);
+}
+
+/* Overlay & Drawer */
+#drawerOverlay {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.4);
+  z-index:999;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+#drawerOverlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+#rightDrawer{
+  position:fixed;
+  top:0;
+  right:-300px;
+  width:250px;
+  height:100%;
+  background:white;
+  box-shadow:-3px 0 6px rgba(0,0,0,0.2);
+  z-index:1000;
+  transition:right 0.3s ease;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+#rightDrawer h3{
+  margin:0;
+  color:#ff1493;
+}
+#rightDrawer button{
+  padding:10px;
+  border:none;
+  background:#ff69b4;
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+#rightDrawer button:hover{
+  background:#ff1493;
+  transform:scale(1.05);
+}
+
+/* Container */
+.container{
+  max-width:900px;
+  margin:20px auto;
+  padding:20px;
+  background:white;
+  border-radius:15px;
+}
+
+h2{
+  text-align:center;
+  color:#ff1493;
+  margin-bottom:15px;
+}
+
+.back-btn{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-bottom:15px;
+  transition:0.2s;
+}
+.back-btn:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.filter-buttons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+}
+.filter-buttons button{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+.filter-buttons button:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.order-card{
+  margin-top:10px;
+  padding:12px;
+  border-radius:10px;
+  background:white;
+  border-left:4px solid #ff1493;
+  box-shadow:0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+.order-card:hover{
+  transform: translateY(-2px);
+}
+
+.order-card img{
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:8px;
+  margin-right:10px;
+}
+
+.order-info{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.order-details{
+  flex:1;
+}
+.order-details p{
+  margin:3px 0;
+}
+
+.status{
+  font-weight:bold;
+}
+
+.status-select{
+  margin-top:5px;
+  padding:4px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+.update-btn{
+  margin-top:5px;
+  padding:6px 10px;
+  background:#ff69b4;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+.update-btn:hover{
+  background:#ff1493;
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- Overlay & Drawer -->
+<div id="drawerOverlay"></div>
+<div id="rightDrawer">
+  <h3>Admin Menu</h3>
+  <button onclick="window.location='admin_profile.html'">Profile</button>
+  <button onclick="window.location='admin_booking.html'">Booked Appointments</button>
+  <button onclick="window.location='admin_orders.html'">Orders</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+  <button class="back-btn" onclick="window.location='admin_home.html'">⬅ Back</button>
+  <h2>All Orders 💖</h2>
+
+  <div class="filter-buttons">
+    <button onclick="filterOrders('all')">1. All</button>
+    <button onclick="filterOrders('Pending')">2. Pending</button>
+    <button onclick="filterOrders('Confirmed')">3. Confirmed</button>
+    <button onclick="filterOrders('Shipped')">4. Shipped</button>
+    <button onclick="filterOrders('Delivered')">5. Delivered</button>
+    <button onclick="filterOrders('Cancelled')">6. Cancelled</button>
+  </div>
+
+  <div id="orders">
+    <p style="text-align:center; color:#ff1493;">Loading all orders...</p>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allOrders = [];
+
+const container = document.getElementById("orders");
+
+onAuthStateChanged(auth, user=>{
+  if(user){
+    console.log("Admin UID:", user.uid);
+    loadOrders();
+  } else {
+    alert("You must login first!");
+    window.location.href = "login.html";
+  }
+});
+
+function logout(){
+  signOut(auth).then(()=>window.location='index.html');
+}
+
+function loadOrders(){
+  const ordersRef = collection(db,"orders");
+
+  onSnapshot(ordersRef, snapshot=>{
+    const orders = [];
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      data.id = doc.id; // Save doc id for updates
+      orders.push(data);
+    });
+
+    // Sort by timestamp descending
+    orders.sort((a,b)=>{
+      const tA = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : 0;
+      const tB = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : 0;
+      return tB - tA;
+    });
+
+    allOrders = orders;
+    displayOrders(allOrders);
+  });
+}
+
+function displayOrders(ordersData){
+  container.innerHTML="";
+  
+  if(ordersData.length===0){
+    container.innerHTML="<p style='text-align:center; color:#ff1493;'>No orders yet 💖</p>";
+    return;
+  }
+
+  ordersData.forEach((o,index)=>{
+    let color="orange";
+    if(o.status==="Confirmed") color="blue";
+    if(o.status==="Shipped") color="purple";
+    if(o.status==="Delivered") color="green";
+    if(o.status==="Cancelled") color="red";
+
+    const div = document.createElement("div");
+    div.className="order-card";
+    div.innerHTML=`
+      <div class="order-info">
+        ${o.proof ? `<img src="${o.proof}" alt="Proof">` : ""}
+        <div class="order-details">
+          <p><b>${index+1}. ${o.product}</b></p>
+          <p>User: ${o.email || 'N/A'}</p>
+          <p>Location: ${o.location || 'N/A'}</p>
+          <p>Price: R${o.price}</p>
+          <p>Status: <span class="status" style="color:${color}">${o.status}</span></p>
+          <select class="status-select">
+            <option value="Pending" ${o.status==="Pending"?"selected":""}>Pending</option>
+            <option value="Confirmed" ${o.status==="Confirmed"?"selected":""}>Confirmed</option>
+            <option value="Shipped" ${o.status==="Shipped"?"selected":""}>Shipped</option>
+            <option value="Delivered" ${o.status==="Delivered"?"selected":""}>Delivered</option>
+            <option value="Cancelled" ${o.status==="Cancelled"?"selected":""}>Cancelled</option>
+          </select>
+          <button class="update-btn">Update Status</button>
+          <p>Date: ${o.timestamp?.toDate ? o.timestamp.toDate().toLocaleString() : "N/A"}</p>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+
+    // Update button functionality
+    const updateBtn = div.querySelector('.update-btn');
+    const select = div.querySelector('.status-select');
+    updateBtn.addEventListener('click', async ()=>{
+      const newStatus = select.value;
+      try{
+        await updateDoc(doc(db,"orders",o.id), {status:newStatus});
+        alert("Status updated successfully!");
+      } catch(err){
+        console.error(err);
+        alert("Failed to update status.");
+      }
+    });
+  });
+}
+
+// Filter orders
+window.filterOrders = (status)=>{
+  if(status==="all") displayOrders(allOrders);
+  else displayOrders(allOrders.filter(o => o.status===status));
+}
+
+// Drawer functionality
+const drawerToggle = document.getElementById('drawerToggle');
+const rightDrawer = document.getElementById('rightDrawer');
+const drawerOverlay = document.getElementById('drawerOverlay');
+
+drawerToggle.addEventListener('click', ()=>{
+  rightDrawer.style.right='0px';
+  drawerOverlay.classList.add('active');
+});
+drawerOverlay.addEventListener('click', ()=>{
+  rightDrawer.style.right='-300px';
+  drawerOverlay.classList.remove('active');
+});
+</script>
+
+</body>
+</html>

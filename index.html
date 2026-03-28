@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T's Hair Plug | Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+      authDomain: "store-web-beadb.firebaseapp.com",
+      projectId: "store-web-beadb",
+      storageBucket: "store-web-beadb.appspot.com",
+      messagingSenderId: "878106383556",
+      appId: "1:878106383556:web:0eda586be105812d896591",
+      measurementId: "G-5TS1981CQP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.isLoggedIn = false;
+    onAuthStateChanged(auth, (user) => {
+      if(user) {
+        window.isLoggedIn = true;
+      }
+    });
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: #fff0f5;
+      color: #333;
+    }
+
+    /* Top banner */
+    .ads {
+      background: #ffb6c1;
+      color: white;
+      padding: 12px 20px;
+      font-weight: bold;
+      font-size: 18px;
+      position: relative;
+      text-align: center;
+    }
+
+    .login-btn {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      background: #ff1493;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-50%) scale(1.05);
+      background: #ff69b4;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px 30px;
+      background: white;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .logo-container img {
+      height: 90px;
+      margin-right: 15px;
+      border-radius: 15px;
+      border: 2px solid #ff69b4;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .logo-container h1 {
+      margin: 0;
+      font-family: 'Pacifico', cursive;
+      color: #ff69b4;
+      font-size: 42px;
+      letter-spacing: 1px;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 12px;
+      margin-left: 30px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .main-nav button {
+      padding: 10px 18px;
+      font-size: 15px;
+      border: none;
+      background: #ff69b4;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .main-nav button:hover {
+      background: #ff1493;
+      transform: scale(1.05);
+    }
+
+    /* Slider */
+    .slider {
+      position: relative;
+      max-width: 1200px;
+      margin: 40px auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      height: 500px;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      animation: fade 10s infinite;
+    }
+
+    .slide:nth-child(1) { animation-delay: 0s; }
+    .slide:nth-child(2) { animation-delay: 2s; }
+    .slide:nth-child(3) { animation-delay: 4s; }
+    .slide:nth-child(4) { animation-delay: 6s; }
+    .slide:nth-child(5) { animation-delay: 8s; }
+
+    @keyframes fade {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      30% { opacity: 1; }
+      40% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      z-index: 2;
+    }
+
+    .hero-text h2 {
+      font-family: 'Pacifico', cursive;
+      font-size: 44px;
+      margin: 0 0 15px 0;
+      letter-spacing: 1px;
+    }
+
+    .hero-text p {
+      font-size: 22px;
+      margin: 0 0 15px 0;
+    }
+
+    .hero-text button {
+      margin-top: 15px;
+      padding: 14px 28px;
+      border: none;
+      background: #ff1493;
+      color: white;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 18px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .hero-text button:hover {
+      transform: scale(1.05);
+      background: #ff69b4;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: white;
+      color: #ff69b4;
+      font-weight: bold;
+      margin-top: 20px;
+      box-shadow: 0 -3px 6px rgba(0,0,0,0.05);
+    }
+
+    @media(max-width: 768px) {
+      .slide { height: 300px; }
+      .hero-text h2 { font-size: 32px; }
+      .hero-text p { font-size: 18px; }
+      .hero-text button { font-size: 16px; padding: 10px 20px; }
+      .main-nav { margin-left: 10px; gap: 8px; }
+      .main-nav button { padding: 6px 12px; font-size: 13px; }
+      .logo-container img { height: 60px; }
+      .logo-container h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Special Offer Banner -->
+  <div class="ads">
+    💖 Special Offer! Get 10% off on your first hair or nail treatment! 💖
+    <button class="login-btn" onclick="window.location='login.html'">Login / Sign Up</button>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container" onclick="window.location='index.html'">
+      <img src="logo.png" alt="T's Hair Plug Logo">
+      <h1>T's Hair Plug</h1>
+    </div>
+    <div class="main-nav">
+      <button onclick="window.location='index.html'">Home</button>
+      <button onclick="window.location='products.html'">Products</button>
+      <button onclick="handleBooking()">Booking</button>
+      <button onclick="window.location='about.html'">About Us</button>
+    </div>
+  </header>
+
+  <!-- Slider / Hero Section -->
+  <section class="slider">
+    <img src="hair1.jpg" alt="Hair Style 1" class="slide">
+    <img src="hair2.jpg" alt="Hair Style 2" class="slide">
+    <img src="hair3.jpg" alt="Hair Style 3" class="slide">
+    <img src="hair4.jpg" alt="Hair Style 4" class="slide">
+    <img src="hair5.jpg" alt="Hair Style 5" class="slide">
+
+    <div class="hero-text">
+      <h2>Welcome to T's Hair Plug!</h2>
+      <p>Professional hairdresser services & premium hair products just for you.</p>
+      <button id="shop-now-btn">Shop Now</button>
+    </div>
+  </section>
+
+  <footer>
+    © 2026 T's Hair Plug | All rights reserved
+  </footer>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    const auth = getAuth();
+
+    let isLoggedIn = false;
+    onAuthStateChanged(auth, (user) => {
+      if(user) isLoggedIn = true;
+    });
+
+    // Shop Now button
+    document.getElementById('shop-now-btn').onclick = function() {
+      if(!isLoggedIn) {
+        alert("Please login or sign up to shop!");
+        window.location = 'login.html';
+      } else {
+        window.location = 'products.html';
+      }
+    }
+
+    // Booking button
+    function handleBooking() {
+      if(!isLoggedIn) {
+        alert("Please register or login to book services!");
+        window.location = 'login.html';
+      } else {
+        window.location = 'booking.html';
+      }
+    }
+  </script>
+
+</body>
+</html>

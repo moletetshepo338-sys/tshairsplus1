@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>T's Hair Plug | Products</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+    authDomain: "store-web-beadb.firebaseapp.com",
+    projectId: "store-web-beadb",
+    storageBucket: "store-web-beadb.appspot.com",
+    messagingSenderId: "878106383556",
+    appId: "1:878106383556:web:0eda586be105812d896591",
+    measurementId: "G-5TS1981CQP"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  window.isLoggedIn = false;
+  onAuthStateChanged(auth, (user) => {
+    if(user) window.isLoggedIn = true;
+  });
+
+  // Load products with working images
+  window.addEventListener("DOMContentLoaded", () => {
+    const feedContainer = document.getElementById("product-feed");
+    onSnapshot(collection(db,"products"), snapshot => {
+      feedContainer.innerHTML = "";
+      snapshot.docs.forEach(doc => {
+        const p = doc.data();
+        // Check if product has images array, else fallback to imageUrl
+        let imageSrc = "";
+        if(p.images && p.images.length > 0){
+          imageSrc = p.images[0]; // first image
+        } else if(p.imageUrl) {
+          imageSrc = p.imageUrl;
+        } else {
+          imageSrc = "placeholder.png"; // fallback placeholder
+        }
+
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${imageSrc}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p>R${p.price}</p>
+          <p>${p.description || ""}</p>
+          <button onclick="alert('Please login to purchase 💖');window.location='login.html'">Login to Purchase</button>
+        `;
+        feedContainer.appendChild(card);
+      });
+    });
+  });
+</script>
+
+<style>
+body {
+  margin:0;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff0f5;
+  color: #333;
+}
+
+/* Banner */
+.ads {
+  background: #ffb6c1;
+  color: white;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 18px;
+  position: relative;
+  text-align: center;
+}
+.login-btn {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  background: #ff1493;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 25px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.login-btn:hover {
+  transform: translateY(-50%) scale(1.05);
+  background: #ff69b4;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px 30px;
+  background: white;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.logo-container img {
+  height: 90px;
+  margin-right: 15px;
+  border-radius: 15px;
+  border: 2px solid #ff69b4;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.logo-container h1 {
+  margin: 0;
+  font-family: 'Pacifico', cursive;
+  color: #ff69b4;
+  font-size: 42px;
+  letter-spacing: 1px;
+}
+.main-nav {
+  display: flex;
+  gap: 12px;
+  margin-left: 30px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.main-nav button {
+  padding: 10px 18px;
+  font-size: 15px;
+  border: none;
+  background: #ff69b4;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.main-nav button:hover {
+  background: #ff1493;
+  transform: scale(1.05);
+}
+
+/* Products Grid */
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 15px;
+}
+.product-feed {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 20px;
+}
+.product-card {
+  background:white;
+  border-radius:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow:hidden;
+}
+.product-card img {
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+}
+.product-card h3 {
+  color:#ff1493;
+  margin:8px 0 0 0;
+  text-align:center;
+}
+.product-card p {
+  margin:4px 0;
+  font-weight:bold;
+  text-align:center;
+}
+.product-card button {
+  margin:10px;
+  padding:8px 12px;
+  border:none;
+  background:#ff1493;
+  color:white;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+.product-card button:hover {
+  background:#ff69b4;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: white;
+  color: #ff69b4;
+  font-weight: bold;
+  margin-top: 20px;
+  box-shadow: 0 -3px 6px rgba(0,0,0,0.05);
+}
+
+@media(max-width:768px) {
+  .main-nav { margin-left:10px; gap:8px; }
+  .main-nav button { padding:6px 12px; font-size:13px; }
+  .logo-container img { height:60px; }
+  .logo-container h1 { font-size:32px; }
+  .product-feed { grid-template-columns: 1fr; gap:15px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Special Offer Banner -->
+<div class="ads">
+  💖 Special Offer! Get 10% off on your first hair or nail treatment! 💖
+  <button class="login-btn" onclick="window.location='login.html'">Login / Sign Up</button>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo-container" onclick="window.location='index.html'">
+    <img src="logo.png" alt="T's Hair Plug Logo">
+    <h1>T's Hair Plug</h1>
+  </div>
+  <div class="main-nav">
+    <button onclick="window.location='index.html'">Home</button>
+    <button onclick="window.location='products.html'">Products</button>
+    <button onclick="handleBooking()">Booking</button>
+    <button onclick="window.location='about.html'">About Us</button>
+  </div>
+</header>
+
+<!-- Products Grid -->
+<div class="container">
+  <h2>Our Products 💖</h2>
+  <div id="product-feed" class="product-feed"></div>
+</div>
+
+<footer>
+  © 2026 T's Hair Plug | All rights reserved
+</footer>
+
+<script>
+function handleBooking() {
+  if(!window.isLoggedIn) {
+    alert("Please register or login to book services!");
+    window.location = 'login.html';
+  } else {
+    window.location = 'booking.html';
+  }
+}
+</script>
+
+</body>
+</html>

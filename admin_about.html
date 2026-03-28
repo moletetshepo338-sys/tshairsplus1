@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin About Us - T's Hairs Plus</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff0f5;
+  color: #333;
+}
+
+/* HEADER - consistent with admin pages */
+header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px 30px;
+  background: white;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.logo-container img {
+  height: 90px;
+  margin-right: 15px;
+  border-radius: 15px;
+  border: 2px solid #ff69b4;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.logo-container h1 {
+  margin: 0;
+  font-family: 'Pacifico', cursive;
+  color: #ff69b4;
+  font-size: 42px;
+  letter-spacing: 1px;
+}
+
+.main-nav {
+  display: flex;
+  gap: 12px;
+  margin-left: 30px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.main-nav button {
+  padding: 8px 15px;
+  font-size: 14px;
+  border: none;
+  background: #ff69b4;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.main-nav button:hover {
+  background: #ff1493;
+  transform: scale(1.05);
+}
+
+/* CONTENT CONTAINER */
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* HEADINGS & TEXT */
+h2 {
+  color: #ff1493;
+  margin-top: 20px;
+}
+
+p, ul {
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+ul li {
+  margin-bottom: 10px;
+}
+
+/* POLICY BOX */
+.policy {
+  background: #ffe4ec;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+.policy h3 {
+  color: #ff1493;
+}
+.policy p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* HERO IMAGE */
+.hero {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.hero-img {
+  width: 80%;
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background: #eee;
+  margin-top: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-container" onclick="window.location='admin_home.html'">
+    <img src="logo.png" alt="T's Hair Plug Logo">
+    <h1>T's Hairs Plus Admin</h1>
+  </div>
+  <div class="main-nav">
+    <button onclick="window.location='admin_home.html'">Home</button>
+    <button onclick="window.location='admin_products.html'">Products</button>
+    <button onclick="window.location='admin_booking.html'">Bookings</button>
+    <button onclick="window.location='admin_about.html'">About Us</button>
+    <
+  </div>
+</header>
+
+<div class="container">
+  <h2>About Us</h2>
+  <p>Welcome to <strong>T's Hair Plug</strong>, your ultimate destination for premium hair services and high-quality wigs. From hair styling, care, and custom wigs, we make every client feel confident and royal.</p>
+
+  <h2>Our Mission</h2>
+  <p>To combine creativity, quality, and personal care so every client leaves feeling their absolute best. Queens deserve the crown! 💇‍♀️👑</p>
+
+  <h2>What We Offer</h2>
+  <ul>
+    <li>Professional hair styling and treatments</li>
+    <li>Custom wig sales and fittings</li>
+    <li>Hair care consultations and advice</li>
+    <li>Products for maintaining your hair and wig</li>
+  </ul>
+
+  <h2>Why Choose Us?</h2>
+  <p>We don’t just style hair — we transform looks and boost confidence. Personalized attention, top-quality products, and techniques are our standard. This is for the girls from the hood going big 💖.</p>
+
+  <div class="policy">
+    <h3>Our Policies</h3>
+    <p>• Bookings require a deposit to secure your date.<br>
+       • Choosing your own date adds +R100 for special care.<br>
+       • Upload your inspiration photo (optional) to get exactly what you want.<br>
+       • All cancellations must be notified at least 24 hours before your booking.<br>
+       • T's Hair Plug is not responsible for hair damage due to client negligence.<br>
+       • Payments must be completed for confirmation.</p>
+  </div>
+
+  <h2>Connect With Us</h2>
+  <p>Stay updated and contact us on Facebook: <a href="https://www.facebook.com/theemowley.ntlhokoeii" target="_blank">Thee Mowley</a></p>
+
+  <div class="hero">
+    <img src="hero.jpg" alt="T's Hair Plug Hero" class="hero-img">
+  </div>
+</div>
+
+<div class="footer">
+  &copy; 2026 T's Hair Plug. All rights reserved.
+</div>
+
+<script type="module">
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+function logout(){
+  signOut(auth).then(()=>window.location='index.html');
+}
+</script>
+
+</body>
+</html>

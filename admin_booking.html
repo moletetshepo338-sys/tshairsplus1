@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Bookings - T's Hairs Plus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family: 'Montserrat', sans-serif;
+  background:#fff0f5;
+  color:#333;
+}
+
+/* Header */
+header {
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  padding:15px 20px;
+  background:white;
+  box-shadow:0 3px 6px rgba(0,0,0,0.1);
+  flex-wrap:wrap;
+  position:sticky;
+  top:0;
+  z-index:99;
+}
+.logo-container{
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+}
+.logo-container img{
+  height:60px;
+  margin-right:10px;
+  border-radius:12px;
+  border:2px solid #ff69b4;
+}
+.logo-container h1{
+  margin:0;
+  font-family:'Pacifico', cursive;
+  color:#ff69b4;
+  font-size:32px;
+}
+.main-nav{
+  display:flex;
+  gap:12px;
+  margin-left:auto;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.main-nav button{
+  padding:8px 15px;
+  font-size:14px;
+  border:none;
+  background:#ff69b4;
+  color:white;
+  border-radius:20px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+}
+.main-nav button:hover{
+  background:#ff1493;
+  transform:scale(1.05);
+}
+
+/* Container */
+.container{
+  max-width:1000px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+
+/* Filter Buttons */
+.filter-buttons{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.filter-buttons button{
+  padding:6px 14px;
+  font-size:14px;
+  border:none;
+  border-radius:12px;
+  background:#ff69b4;
+  color:white;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+}
+.filter-buttons button:hover,
+.filter-buttons button.active{
+  background:#ff1493;
+  transform:scale(1.05);
+}
+
+/* Booking Cards */
+.booking-card{
+  margin-top:15px;
+  padding:15px;
+  border-radius:10px;
+  background:white;
+  border-left:4px solid #ff1493;
+  gap:10px;
+}
+.booking-card img{
+  width:100%;
+  border-radius:8px;
+  margin-top:5px;
+  cursor:pointer;
+  transition:0.2s;
+}
+.booking-card img:hover{
+  transform:scale(1.05);
+}
+
+/* Images grid below details */
+.images-grid{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:10px;
+  margin-top:10px;
+}
+
+/* Modal for full image view */
+#imageModal{
+  display:none;
+  position:fixed;
+  z-index:999;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+}
+#imageModal img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+}
+#imageModal span{
+  position:absolute;
+  top:20px;
+  right:30px;
+  color:white;
+  font-size:30px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.booking-card select,
+.booking-card input{
+  margin-top:10px;
+  padding:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+.booking-card button{
+  margin-top:5px;
+  padding:6px 10px;
+  border:none;
+  border-radius:5px;
+  background:#ff1493;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+h2{
+  text-align:center;
+  color:#ff1493;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-container" onclick="window.location='admin_home.html'">
+    <img src="logo.png" alt="T's Hair Plug Logo">
+    <h1>T's Hairs Plus Admin</h1>
+  </div>
+  <div class="main-nav">
+    <button onclick="window.location='admin_home.html'">Home</button>
+    <button onclick="window.location='admin_products.html'">Products</button>
+    <button onclick="window.location='admin_booking.html'">Bookings</button>
+    <button onclick="window.location='admin_about.html'">About Us</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+<h2>All Bookings 💖</h2>
+
+<div class="filter-buttons">
+  <button class="active" onclick="filterBookings('all')">All</button>
+  <button onclick="filterBookings('pending payment')">Pending Payment</button>
+  <button onclick="filterBookings('paid')">Paid</button>
+  <button onclick="filterBookings('scheduled')">Scheduled</button>
+  <button onclick="filterBookings('completed')">Completed</button>
+</div>
+
+<div id="bookings">
+  <p style="text-align:center; color:#ff1493;">Loading bookings...</p>
+</div>
+</div>
+
+<!-- Modal -->
+<div id="imageModal" onclick="closeModal()">
+  <span onclick="closeModal()">&times;</span>
+  <img id="modalImage">
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+function logout(){
+  signOut(auth).then(()=>window.location='index.html');
+}
+
+const bookingsContainer = document.getElementById("bookings");
+let allBookings = [];
+
+const bookingsRef = collection(db,"bookings");
+onSnapshot(bookingsRef, snapshot=>{
+  allBookings = [];
+  snapshot.forEach(docSnap=>{
+    allBookings.push({ id: docSnap.id, data: docSnap.data() });
+  });
+  renderBookings('all');
+});
+
+function renderBookings(statusFilter){
+  bookingsContainer.innerHTML="";
+  let counter=1;
+
+  allBookings.forEach(booking=>{
+    const b = booking.data;
+    if(statusFilter!=='all' && b.status!==statusFilter) return;
+
+    let color="orange";
+    if(b.status==="paid") color="blue";
+    if(b.status==="scheduled") color="green";
+    if(b.status==="completed") color="purple";
+
+    const div = document.createElement("div");
+    div.className="booking-card";
+
+    let imagesHTML = "";
+    if(b.image) imagesHTML += `<div><b>${b.userName}</b><img src="${b.image}" onclick="showModal('${b.image}')"></div>`;
+    if(b.proof) imagesHTML += `<div><b>${b.userName}</b><img src="${b.proof}" onclick="showModal('${b.proof}')"></div>`;
+
+    div.innerHTML = `
+      <b>Appointment #${counter}:</b><br>
+      <b>User:</b> ${b.userName}<br>
+      <b>Style:</b> ${b.style}<br>
+      <b>Assigned Date:</b> ${b.assignedDate || "Not Assigned"}<br>
+      <b>Status:</b> <span style="color:${color}; font-weight:bold;">${b.status}</span><br>
+      <b>Deposit:</b> R${b.deposit}<br>
+      ${b.extraCare ? "<span style='color:#ff1493;'>+ R100 Extra Care</span><br>" : ""}
+      
+      <div class="images-grid">
+        ${imagesHTML}
+      </div>
+
+      <label>Assign Date & Time:</label>
+      <input type="datetime-local" id="date-${booking.id}">
+      <button onclick="assignDate('${booking.id}')">Assign ✅</button><br>
+
+      <label>Change Status:</label>
+      <select id="status-${booking.id}">
+        <option value="pending payment" ${b.status==="pending payment"?"selected":""}>Pending Payment</option>
+        <option value="paid" ${b.status==="paid"?"selected":""}>Paid</option>
+        <option value="scheduled" ${b.status==="scheduled"?"selected":""}>Scheduled</option>
+        <option value="completed" ${b.status==="completed"?"selected":""}>Completed</option>
+      </select>
+      <button onclick="updateStatus('${booking.id}')">Update Status</button>
+    `;
+
+    bookingsContainer.appendChild(div);
+    counter++;
+  });
+}
+
+window.filterBookings = (status)=>{
+  document.querySelectorAll('.filter-buttons button').forEach(btn=>btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderBookings(status);
+}
+
+window.updateStatus = async (bookingId)=>{
+  const select = document.getElementById(`status-${bookingId}`);
+  const newStatus = select.value;
+
+  await updateDoc(doc(db,"bookings",bookingId),{
+    status:newStatus,
+    updatedAt:Timestamp.now()
+  });
+
+  alert(`✅ Booking status updated to "${newStatus}"`);
+};
+
+window.assignDate = async (bookingId)=>{
+  const input = document.getElementById(`date-${bookingId}`);
+  const val = input.value;
+  if(!val){ alert("Pick a date & time!"); return; }
+
+  await updateDoc(doc(db,"bookings",bookingId),{
+    assignedDate: val,
+    status:"scheduled",
+    updatedAt:Timestamp.now()
+  });
+
+  alert(`✅ Date & time assigned: ${val}`);
+  input.value="";
+};
+
+/* Modal Functions */
+function showModal(src){
+  const modal = document.getElementById('imageModal');
+  document.getElementById('modalImage').src = src;
+  modal.style.display="flex";
+}
+function closeModal(){
+  document.getElementById('imageModal').style.display="none";
+}
+</script>
+
+</body>
+</html>

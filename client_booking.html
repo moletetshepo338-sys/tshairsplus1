@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Booking - T's Hairs Plus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#fff0f5;color:#333;}
+header{background:#ff69b4;color:white;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+header .logo{display:flex;align-items:center;}
+header .logo img{width:50px;height:50px;margin-right:10px;border-radius:10px;}
+header .logo h1{font-family:'Comic Sans MS', cursive;font-size:22px;margin:0;}
+nav{display:flex;gap:10px;flex-wrap:wrap;}
+nav button{padding:8px 12px;border:none;background:#ff1493;color:white;border-radius:5px;cursor:pointer;font-weight:bold;}
+nav button:hover{background:#ff69b4;}
+
+.container{max-width:500px;margin:20px auto;background:white;padding:20px;border-radius:15px;}
+.container button{width:100%;padding:12px;background:#ff1493;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;}
+
+h2{text-align:center;color:#ff1493;}
+
+.instructions{background:#ffe4ec;padding:15px;border-radius:10px;margin-bottom:15px;font-size:14px;}
+.payment{background:#fff0f5;border:2px dashed #ff1493;padding:15px;border-radius:10px;margin-bottom:15px;font-size:14px;}
+
+select,input{width:100%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ccc;}
+
+.price-box{background:#ffe4ec;padding:10px;border-radius:10px;text-align:center;font-weight:bold;color:#ff1493;}
+
+.booking-card{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  background:white;
+  border-left:4px solid #ff1493;
+}
+</style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+/* CLOUDINARY */
+const CLOUD_NAME = "dukgh9jmd";
+const UPLOAD_PRESET = "store_upload";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+let currentUserName = "";
+
+/* PRICES */
+const prices = {
+  "Straight Back - Shoulder":300,
+  "Straight Back - Waist":350,
+  "Straight Up - Shoulder":350,
+  "Straight Up - Waist":450,
+  "Knotless - Shoulder":550,
+  "Knotless - Waist":650,
+  "French Curls - Shoulder":550,
+  "French Curls - Waist":700,
+  "Tribal - Shoulder":500,
+  "Tribal - Waist":550
+};
+
+/* SHOW PRICE */
+window.showPrice = ()=>{
+  const style = document.getElementById("style").value;
+  const selfDate = document.getElementById("selfDate").checked;
+
+  let base = prices[style] || 0;
+  let extra = selfDate ? 100 : 0;
+
+  let full = base + extra;
+  let deposit = full * 0.5;
+
+  document.getElementById("price").innerText =
+    full ? `Full: R${full} | Deposit: R${deposit}` : "";
+
+  document.getElementById("date").style.display = selfDate ? "block" : "none";
+};
+
+/* BOOK */
+window.bookNow = async ()=>{
+  const btn = document.querySelector("button[onclick='bookNow()']");
+  btn.disabled = true;
+  const originalText = btn.innerText;
+  btn.innerText = "Booking... 💖";
+
+  try {
+    if(!currentUser){
+      alert("Please login first 💖");
+      return;
+    }
+
+    const style = document.getElementById("style").value;
+    const selfDate = document.getElementById("selfDate").checked;
+    const date = document.getElementById("date").value;
+    const file = document.getElementById("styleImage").files[0];
+    const proofFile = document.getElementById("paymentProof").files[0];
+
+    if(!style){
+      alert("Select hairstyle 💖");
+      return;
+    }
+
+    if(!proofFile){
+      alert("⚠️ Upload proof of payment!");
+      return;
+    }
+
+    if(selfDate && !date){
+      alert("Please choose your date 💖");
+      return;
+    }
+
+    let base = prices[style];
+    let extra = selfDate ? 100 : 0;
+
+    let fullPrice = base + extra;
+    let deposit = fullPrice * 0.5;
+
+    let imageUrl = "";
+    let proofUrl = "";
+
+    // Upload hairstyle image
+    if(file){
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", UPLOAD_PRESET);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{
+        method:"POST",
+        body:fd
+      });
+
+      const data = await res.json();
+      imageUrl = data.secure_url || "";
+    }
+
+    // Upload proof
+    const fd2 = new FormData();
+    fd2.append("file", proofFile);
+    fd2.append("upload_preset", UPLOAD_PRESET);
+
+    const res2 = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{
+      method:"POST",
+      body:fd2
+    });
+
+    const data2 = await res2.json();
+    proofUrl = data2.secure_url;
+
+    await addDoc(collection(db,"bookings"),{
+      userId: currentUser.uid,
+      userName: currentUserName,
+      style,
+      selfDate,
+      selectedDate: selfDate ? date : null,
+      assignedDate: null,
+      fullPrice,
+      deposit,
+      image: imageUrl,
+      proof: proofUrl,
+      status:"pending payment verification",
+      createdAt: Timestamp.now()
+    });
+
+    btn.innerText = "✅ Booking submitted!";
+    setTimeout(()=>btn.innerText = originalText, 2000);
+
+  } catch(err) {
+    console.error(err);
+    alert("❌ Booking failed!");
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+/* LOAD BOOKINGS */
+onAuthStateChanged(auth, user=>{
+  if(user){
+    currentUser = user;
+    currentUserName = user.displayName || user.email;
+
+    const q = query(collection(db,"bookings"), where("userId","==",user.uid));
+
+    onSnapshot(q, snapshot=>{
+      const container = document.getElementById("bookings");
+      container.innerHTML="";
+
+      snapshot.forEach(doc=>{
+        const b = doc.data();
+
+        let color="orange";
+        if(b.status==="approved") color="green";
+        if(b.status==="completed") color="purple";
+
+        const div = document.createElement("div");
+        div.className="booking-card";
+
+        div.innerHTML=`
+          <div style="display:flex;gap:10px;align-items:center;">
+            
+            ${b.image ? `<img src="${b.image}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">` : ""}
+
+            <div style="flex:1;">
+              <b>${b.userName}</b><br>
+              Style: ${b.style}<br>
+              Date: ${b.assignedDate || b.selectedDate || "Waiting for admin"}<br>
+              Deposit: R${b.deposit}<br>
+              Status: <span style="color:${color};font-weight:bold;">${b.status}</span>
+            </div>
+
+            ${b.proof ? `<img src="${b.proof}" style="width:50px;height:50px;border-radius:6px;">` : ""}
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    });
+  }
+});
+</script>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <img src="logo.png">
+    <h1>T's Hairs Plus</h1>
+  </div>
+
+  <nav>
+    <button onclick="window.location='client_home.html'">Home</button>
+    <button onclick="window.location='client_product.html'">Purchase</button>
+    <button onclick="window.location='client_booking.html'">Booking</button>
+    <button onclick="window.location='client_about.html'">About Us</button>
+  </nav>
+</header>
+
+<div class="container">
+<h2>Book Your Style 💖</h2>
+
+<div class="instructions">
+<b>📌 Booking Guide:</b><br><br>
+• No deposit = No appointment<br>
+• 50% deposit is required (non-refundable)<br>
+• Book at least 1 week before<br>
+• Late arrival = R100 penalty or cancellation<br>
+• Only 1 visitor allowed<br>
+• No last minute bookings<br>
+• You can upload picture of preffereed haiystyle
+</div>
+
+<div class="payment">
+<b>💳 Payment Details:</b><br>
+Bank: Capitec<br>
+Account Name: T's Hairs Plus<br>
+Account Number: 1234567890<br><br>
+💡 Pay deposit then upload proof below
+</div>
+
+<select id="style" onchange="showPrice()">
+  <option value="">Select Hairstyle</option>
+  <option>Straight Back - Shoulder</option>
+  <option>Straight Back - Waist</option>
+  <option>Straight Up - Shoulder</option>
+  <option>Straight Up - Waist</option>
+  <option>Knotless - Shoulder</option>
+  <option>Knotless - Waist</option>
+</select>
+
+<input type="file" id="styleImage">
+<p>upload proof of payment</p>
+<input type="file" id="paymentProof" required>
+
+<label>
+  <input type="checkbox" id="selfDate" onchange="showPrice()">
+  Choose your own date (+R100)
+</label>
+
+<input type="date" id="date" style="display:none;">
+<div id="price" class="price-box"></div>
+
+<button onclick="bookNow()">Book Now 💖</button>
+
+<div style="margin-top:20px;">
+  <h3>Your Bookings 💖</h3>
+  <div id="bookings"></div>
+</div>
+
+</div>
+
+</body>
+</html>

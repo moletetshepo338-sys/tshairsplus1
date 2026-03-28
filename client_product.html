@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>T's Hairs Plus 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* HEADER */
+header{
+  background:#ff69b4;
+  color:white;
+  padding:10px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+}
+header .logo{
+  display:flex;
+  align-items:center;
+}
+header .logo img{
+  width:50px;
+  height:50px;
+  margin-right:10px;
+  border-radius:10px;
+}
+header .logo h1{
+  font-family:'Comic Sans MS', cursive;
+  font-size:22px;
+  margin:0;
+}
+nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+nav button{
+  padding:8px 12px;
+  border:none;
+  background:#ff1493;
+  color:white;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+nav button:hover{
+  background:#ff69b4;
+}
+
+/* MAIN */
+.container{
+  max-width:900px;
+  margin:20px auto;
+  padding:0 10px;
+}
+
+.product-feed{
+  display:flex;
+  flex-direction:column;
+  gap:30px;
+}
+
+.product-card{
+  background:white;
+  border-radius:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+  padding:15px;
+}
+
+.product-card img{
+  width:100%;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.product-card h3{
+  color:#ff1493;
+  margin:5px 0;
+}
+
+.product-card p{
+  margin:5px 0;
+  font-weight:bold;
+}
+
+/* BUTTON */
+.buy-btn{
+  width:100%;
+  padding:12px;
+  background:#ff1493;
+  border:none;
+  border-radius:10px;
+  color:white;
+  font-weight:bold;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+.buy-btn:hover{
+  background:#ff69b4;
+}
+
+/* POPUP */
+#overlay{
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  top:0;
+  left:0;
+  z-index:999;
+}
+
+.popup{
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  width:90%;
+  max-width:400px;
+  z-index:1000;
+}
+
+.popup input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+
+.popup button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+.confirm{background:#ff1493;color:white;}
+.cancel{background:#333;color:white;}
+
+/* Product Images Grid in Popup */
+#popup-images{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:5px;
+  max-height:200px;
+  overflow-y:auto;
+  margin-bottom:10px;
+}
+
+#popup-images img{
+  width:100%;
+  height:100px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+#popup-images::-webkit-scrollbar{
+  width:6px;
+}
+#popup-images::-webkit-scrollbar-thumb{
+  background:#ff1493;
+  border-radius:3px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <img src="logo.png" alt="Logo">
+    <h1>T's Hairs Plus</h1>
+  </div>
+  <nav>
+    <button onclick="window.location='client_home.html'">Home</button>
+    <button onclick="window.location='client_product.html'">Purchase</button>
+    <button onclick="window.location='client_booking.html'">Booking</button>
+    <button onclick="window.location='client_about.html'">About Us</button>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Shop Products 💕</h2>
+  <div id="products" class="product-feed"></div>
+</div>
+
+<!-- POPUP -->
+<div id="overlay"></div>
+
+<div id="popup" class="popup">
+  <h3 id="productName"></h3>
+
+  <div id="popup-images"></div>
+
+  <p><b>Bank:</b> Capitec</p>
+  <p><b>Account Name:</b> T's Hairs Plus</p>
+  <p><b>Account Number:</b> 1234567890</p>
+  <p>💡 Transfer and upload proof</p>
+
+  <input type="text" id="deliveryLocation" placeholder="Enter delivery location / coordinates" />
+  <input type="file" id="proof">
+
+  <button class="confirm" onclick="submitOrder()">Confirm Order</button>
+  <button class="cancel" onclick="closePopup()">Cancel</button>
+</div>
+
+<script type="module">
+const CLOUD_NAME = "dukgh9jmd";
+const UPLOAD_PRESET = "store_upload";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* USER INFO */
+let userEmail = "guest";
+let userId = null;
+let userName = "Guest";
+
+onAuthStateChanged(auth, user=>{
+  if(user){
+    userEmail = user.email;
+    userId = user.uid;
+    userName = user.displayName || "Guest";
+  }
+});
+
+/* LOAD PRODUCTS */
+const container = document.getElementById("products");
+
+onSnapshot(collection(db,"products"), snap=>{
+  container.innerHTML="";
+  snap.forEach(doc=>{
+    const p = doc.data();
+    const images = p.images || [p.imageUrl];
+
+    const card = document.createElement("div");
+    card.className="product-card";
+
+    card.innerHTML=`
+      <img src="${images[0]}">
+      <h3>${p.name}</h3>
+      <p><b>R${p.price}</b></p>
+      <p>${p.description || "No description available"}</p>
+      <button class="buy-btn" onclick='buy("${p.name}",${p.price}, ${JSON.stringify(images)})'>💖 Buy Now</button>
+    `;
+
+    container.appendChild(card);
+  });
+});
+
+/* POPUP */
+let selectedName="", selectedPrice="";
+const overlay = document.getElementById("overlay");
+const popup = document.getElementById("popup");
+const proof = document.getElementById("proof");
+const deliveryLocationInput = document.getElementById("deliveryLocation");
+
+window.buy = (name, price, images)=>{
+  selectedName=name;
+  selectedPrice=price;
+
+  document.getElementById("productName").innerText = `${name} - R${price}`;
+
+  // Populate images
+  const popupImagesContainer = document.getElementById("popup-images");
+  popupImagesContainer.innerHTML = "";
+  if(images.length===0) images=["placeholder.png"];
+  images.forEach(url=>{
+    const img = document.createElement("img");
+    img.src = url;
+    popupImagesContainer.appendChild(img);
+  });
+
+  overlay.style.display="block";
+  popup.style.display="block";
+};
+
+window.closePopup = ()=>{
+  overlay.style.display="none";
+  popup.style.display="none";
+};
+
+/* SUBMIT ORDER */
+window.submitOrder = async ()=>{
+  if(!userId){
+    alert("⚠️ You must be logged in to order!");
+    return;
+  }
+
+  const file = proof.files[0];
+  const location = deliveryLocationInput.value.trim();
+
+  if(!file){
+    alert("⚠️ Upload proof first!");
+    return;
+  }
+
+  if(!location){
+    alert("⚠️ Enter delivery location!");
+    return;
+  }
+
+  const confirmBtn = document.querySelector(".confirm");
+  confirmBtn.disabled = true;
+  confirmBtn.innerText = "Processing...";
+
+  try{
+    // Upload proof to Cloudinary
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", UPLOAD_PRESET);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{
+      method:"POST",
+      body: fd
+    });
+
+    const data = await res.json();
+    if(!data.secure_url){
+      alert("Upload failed!");
+      confirmBtn.disabled = false;
+      confirmBtn.innerText = "Confirm Order";
+      return;
+    }
+
+    // Save order in Firestore with UID, name & location
+    await addDoc(collection(db,"orders"),{
+      uid: userId,
+      name: userName,
+      email: userEmail,
+      product: selectedName,
+      price: selectedPrice,
+      proof: data.secure_url,
+      location: location,
+      status: "Pending",
+      timestamp: serverTimestamp()
+    });
+
+    closePopup();
+    alert(`✅ Order submitted! Thank you, ${userEmail}. Waiting for confirmation.`);
+
+    // Reset inputs
+    proof.value = "";
+    deliveryLocationInput.value = "";
+
+  }catch(err){
+    console.error(err);
+    alert("Error!");
+    confirmBtn.disabled = false;
+    confirmBtn.innerText = "Confirm Order";
+  }
+};
+</script>
+
+</body>
+</html>

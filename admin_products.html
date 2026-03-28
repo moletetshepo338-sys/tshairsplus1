@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Products - T's Hair Plug</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family: 'Montserrat', sans-serif;
+  background:#fff0f5;
+  color:#333;
+}
+
+/* Header - same as front page with nav */
+header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+.logo-container{
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+}
+.logo-container img{
+  height:60px;
+  margin-right:10px;
+  border-radius:12px;
+  border:2px solid #ff69b4;
+}
+.logo-container h1{
+  margin:0;
+  font-family: 'Pacifico', cursive;
+  color:#ff69b4;
+  font-size:32px;
+}
+.main-nav{
+  display:flex;
+  gap:12px;
+  margin-left:auto;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.main-nav button{
+  padding:8px 15px;
+  font-size:14px;
+  border:none;
+  background:#ff69b4;
+  color:white;
+  border-radius:20px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+}
+.main-nav button:hover{
+  background:#ff1493;
+  transform:scale(1.05);
+}
+
+/* Container */
+.container{
+  max-width:1000px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+
+/* Form */
+input, textarea{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+/* Buttons */
+button{
+  padding:10px 15px;
+  background:#ff1493;
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
+  transition:0.3s;
+}
+button:hover{
+  background:#ff69b4;
+}
+
+/* Status */
+#status{
+  text-align:center;
+  margin-top:10px;
+  color:#ff1493;
+  font-weight:bold;
+}
+
+/* Product Grid */
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:12px;
+  max-height:600px;
+  overflow-y:auto; /* scroll if many products */
+  padding-right:5px;
+}
+.product-card{
+  background:white;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  padding:8px;
+  text-align:center;
+  font-size:14px;
+}
+.product-card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  border-radius:8px;
+  margin-bottom:5px;
+}
+.product-card h3{
+  margin:5px 0;
+  font-size:16px;
+  color:#ff1493;
+}
+.product-card p{
+  margin:2px 0;
+  font-weight:bold;
+}
+.product-card button{
+  width:100%;
+  margin-top:5px;
+  padding:6px;
+  font-size:13px;
+}
+.reactions{
+  font-size:12px;
+  color:#ff1493;
+  margin-top:3px;
+}
+
+@media(max-width:768px){
+  .main-nav button{
+    padding:6px 10px;
+    font-size:12px;
+  }
+  .logo-container h1{
+    font-size:26px;
+  }
+  .product-grid{
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  }
+}
+</style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Cloudinary
+const CLOUD_NAME = "dukgh9jmd";
+const UPLOAD_PRESET = "store_upload";
+
+let currentUserRole = null;
+
+// Check admin role
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    alert("Login required!");
+    window.location='login.html';
+    return;
+  }
+  const snapshot = await getDocs(collection(db,"users"));
+  snapshot.forEach(docSnap=>{
+    if(docSnap.id === user.uid){
+      currentUserRole = docSnap.data().role;
+    }
+  });
+  if(currentUserRole !== "admin"){
+    alert("Access denied!");
+    window.location='index.html';
+  } else {
+    loadProducts();
+  }
+});
+
+// Add product
+window.addProduct = async ()=>{
+  if(currentUserRole!=="admin"){ alert("Only admin!"); return; }
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const desc = document.getElementById("desc").value;
+  const files = [
+    document.getElementById("image1").files[0],
+    document.getElementById("image2").files[0],
+    document.getElementById("image3").files[0],
+    document.getElementById("image4").files[0]
+  ].filter(f=>f);
+
+  if(!name||!price||!desc||files.length===0){ alert("Fill all fields and at least 1 image"); return; }
+
+  try{
+    document.getElementById("status").innerText="Uploading images...";
+    const imageUrls = [];
+    for(const file of files){
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{
+        method:"POST", body:formData
+      });
+      const data = await res.json();
+      if(data.secure_url) imageUrls.push(data.secure_url);
+    }
+    document.getElementById("status").innerText="Saving product...";
+    await addDoc(collection(db,"products"),{
+      name:name,
+      price:parseFloat(price),
+      description:desc,
+      images:imageUrls,
+      reactions:imageUrls.map(()=>0),
+      createdAt:new Date()
+    });
+    document.getElementById("status").innerText="";
+    alert("Product added!");
+    document.getElementById("name").value="";
+    document.getElementById("price").value="";
+    document.getElementById("desc").value="";
+    document.getElementById("image1").value="";
+    document.getElementById("image2").value="";
+    document.getElementById("image3").value="";
+    document.getElementById("image4").value="";
+    loadProducts();
+  }catch(e){ alert("Error: "+e.message); document.getElementById("status").innerText=""; }
+};
+
+// Load products
+async function loadProducts(){
+  const container = document.getElementById("product-grid");
+  container.innerHTML="Loading...";
+  const snapshot = await getDocs(collection(db,"products"));
+  container.innerHTML="";
+  snapshot.forEach(docSnap=>{
+    const p = docSnap.data();
+    const card = document.createElement("div");
+    card.className="product-card";
+    card.innerHTML=`
+      <h3>${p.name}</h3>
+      <p>R${p.price}</p>
+      <p>${p.description}</p>
+      ${p.images.map(url=>`<img src="${url}" alt="${p.name}">`).join('')}
+      <div class="reactions">❤️ ${p.reactions.reduce((a,b)=>a+b,0)}</div>
+      <button onclick="deleteProduct('${docSnap.id}')">Delete</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Delete
+window.deleteProduct = async (id)=>{
+  if(confirm("Delete this product?")){
+    await deleteDoc(doc(db,"products",id));
+    alert("Deleted!");
+    loadProducts();
+  }
+}
+</script>
+
+</head>
+<body>
+
+<header>
+  <div class="logo-container" onclick="window.location='admin_home.html'">
+    <img src="logo.png" alt="Logo">
+    <h1>T's Hair Plug Admin</h1>
+  </div>
+  <div class="main-nav">
+    <button onclick="window.location='admin_home.html'">Home</button>
+    <button onclick="window.location='admin_products.html'">Products</button>
+    <button onclick="window.location='admin_booking.html'">Bookings</button>
+    <button onclick="window.location='admin_about.html'">About Us</button>
+
+  </div>
+</header>
+
+<div class="container">
+  <h3>Add / Manage Products</h3>
+  <input id="name" placeholder="Product Name">
+  <input id="price" type="number" placeholder="Price (R)">
+  <textarea id="desc" placeholder="Description"></textarea>
+  <input id="image1" type="file" accept="image/*">
+  <input id="image2" type="file" accept="image/*">
+  <input id="image3" type="file" accept="image/*">
+  <input id="image4" type="file" accept="image/*">
+  <button onclick="addProduct()">Add Product</button>
+  <div id="status"></div>
+</div>
+
+<div class="container">
+  <h3>All Products</h3>
+  <div id="product-grid" class="product-grid"></div>
+</div>
+
+</body>
+</html>

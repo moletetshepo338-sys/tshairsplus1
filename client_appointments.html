@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Appointments - T's Hairs Plus</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#fff0f5;
+  color:#333;
+}
+
+.container{
+  max-width:700px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+}
+
+h2{
+  text-align:center;
+  color:#ff1493;
+}
+
+.back-btn{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-bottom:15px;
+  transition:0.2s;
+}
+.back-btn:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.filter-buttons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+}
+.filter-buttons button{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+.filter-buttons button:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.booking-card{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  background:white;
+  border-left:4px solid #ff1493;
+  box-shadow:0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+.booking-card:hover{
+  transform: translateY(-2px);
+}
+
+.booking-card img{
+  border-radius:8px;
+  object-fit:cover;
+}
+
+.booking-info{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.booking-details{
+  flex:1;
+}
+.booking-details p{
+  margin:3px 0;
+}
+
+.status{
+  font-weight:bold;
+}
+</style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+  storageBucket: "store-web-beadb.appspot.com",
+  messagingSenderId: "878106383556",
+  appId: "1:878106383556:web:0eda586be105812d896591",
+  measurementId: "G-5TS1981CQP"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let allBookings = [];
+const container = document.getElementById("bookings");
+
+onAuthStateChanged(auth, user=>{
+  if(user){
+    currentUser = user;
+    loadBookings();
+  } else {
+    window.location.href = "login.html";
+  }
+});
+
+// Load bookings from Firestore
+function loadBookings(){
+  const q = query(collection(db,"bookings"), where("userId","==",currentUser.uid));
+  onSnapshot(q, snapshot=>{
+    allBookings = [];
+    snapshot.forEach(doc=>{
+      allBookings.push(doc.data());
+    });
+    displayBookings(allBookings);
+  });
+}
+
+// Display bookings with numbering
+function displayBookings(bookingsData){
+  container.innerHTML="";
+  
+  if(bookingsData.length===0){
+    container.innerHTML="<p style='text-align:center; color:#ff1493;'>You have no appointments yet 💖</p>";
+    return;
+  }
+
+  bookingsData.forEach((b, index)=>{
+    let color="orange";
+    if(b.status==="approved") color="green";
+    if(b.status==="completed") color="purple";
+
+    const div = document.createElement("div");
+    div.className="booking-card";
+    div.innerHTML=`
+      <div class="booking-info">
+        ${b.image ? `<img src="${b.image}" style="width:70px;height:70px;">` : ""}
+        <div class="booking-details">
+          <p><b>${index + 1}. ${b.userName}</b></p>
+          <p>Style: ${b.style}</p>
+          <p>Date: ${b.assignedDate || b.selectedDate || "Waiting for admin"}</p>
+          <p>Deposit: R${b.deposit}</p>
+          <p>Status: <span class="status" style="color:${color};">${b.status}</span></p>
+        </div>
+        ${b.proof ? `<img src="${b.proof}" style="width:50px;height:50px;">` : ""}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Filter buttons
+window.filterBookings = (status) => {
+  if(status === "all") displayBookings(allBookings);
+  else displayBookings(allBookings.filter(b => b.status === status));
+}
+
+// Back button
+window.goBack = () => {
+  window.location.href = "client_home.html"; // or client_home.html
+}
+</script>
+
+</head>
+<body>
+
+<div class="container">
+  <button class="back-btn" onclick="goBack()">⬅ Back</button>
+  <h2>My Appointments 💖</h2>
+
+  <div class="filter-buttons">
+    <button onclick="filterBookings('all')">All</button>
+    <button onclick="filterBookings('pending payment verification')">Pending</button>
+    <button onclick="filterBookings('approved')">Approved</button>
+    <button onclick="filterBookings('completed')">Completed</button>
+  </div>
+
+  <div id="bookings">
+    <p style="text-align:center; color:#ff1493;">Loading your bookings...</p>
+  </div>
+</div>
+
+</body>
+</html>

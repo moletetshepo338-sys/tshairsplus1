@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Appointments - T's Hairs Plus</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#fff0f5;
+  color:#333;
+}
+
+.container{
+  max-width:900px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+}
+
+h2{
+  text-align:center;
+  color:#ff1493;
+}
+
+.back-btn{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-bottom:15px;
+  transition:0.2s;
+}
+.back-btn:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.filter-buttons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+}
+.filter-buttons button{
+  background:#ffe4ec;
+  color:#ff1493;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+.filter-buttons button:hover{
+  background:#ff1493;
+  color:white;
+}
+
+.appointment-card{
+  margin-top:10px;
+  padding:12px;
+  border-radius:10px;
+  background:white;
+  border-left:4px solid #ff1493;
+  box-shadow:0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+.appointment-card:hover{
+  transform: translateY(-2px);
+}
+
+.appointment-info{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.appointment-details{
+  flex:1;
+}
+.appointment-details p{
+  margin:3px 0;
+}
+
+.status{
+  font-weight:bold;
+}
+
+.appointment-actions{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.appointment-actions button, .appointment-actions input{
+  padding:6px 10px;
+  border-radius:5px;
+  border:none;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.approve{background:green; color:white;}
+.complete{background:purple; color:white;}
+.update-date{background:#ff1493; color:white;}
+
+input[type="date"]{
+  padding:5px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <button class="back-btn" onclick="goBack()">⬅ Back</button>
+  <h2>Manage Appointments 💖</h2>
+
+  <div class="filter-buttons">
+    <button onclick="filterAppointments('all')">All</button>
+    <button onclick="filterAppointments('pending payment verification')">Pending</button>
+    <button onclick="filterAppointments('approved')">Approved</button>
+    <button onclick="filterAppointments('completed')">Completed</button>
+  </div>
+
+  <div id="appointments">
+    <p style="text-align:center; color:#ff1493;">Loading appointments...</p>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCV7eKMNGS-8yTFH71LHdUa7DBOgdw-M38",
+  authDomain: "store-web-beadb.firebaseapp.com",
+  projectId: "store-web-beadb",
+  storageBucket: "store-web-beadb.appspot.com",
+  messagingSenderId: "878106383556",
+  appId: "1:878106383556:web:0eda586be105812d896591",
+  measurementId: "G-5TS1981CQP"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allAppointments = [];
+const container = document.getElementById("appointments");
+
+// Admin auth check
+onAuthStateChanged(auth, user=>{
+  if(user){
+    loadAppointments();
+  } else {
+    alert("You must log in as admin!");
+    window.location.href = "login.html";
+  }
+});
+
+function loadAppointments(){
+  const appointmentsRef = collection(db,"bookings");
+
+  onSnapshot(appointmentsRef, snapshot=>{
+    allAppointments = [];
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      data.id = doc.id; // store document ID for updates
+      allAppointments.push(data);
+    });
+    displayAppointments(allAppointments);
+  });
+}
+
+function displayAppointments(data){
+  container.innerHTML="";
+  if(data.length===0){
+    container.innerHTML="<p style='text-align:center; color:#ff1493;'>No appointments found.</p>";
+    return;
+  }
+
+  data.forEach((a,index)=>{
+    let color="orange";
+    if(a.status==="approved") color="green";
+    if(a.status==="completed") color="purple";
+
+    const div = document.createElement("div");
+    div.className="appointment-card";
+    div.innerHTML=`
+      <div class="appointment-info">
+        ${a.image ? `<img src="${a.image}" style="width:70px;height:70px;">` : ""}
+        <div class="appointment-details">
+          <p><b>${index+1}. ${a.userName}</b></p>
+          <p>Style: ${a.style}</p>
+          <p>Date: ${a.assignedDate || a.selectedDate || "Not assigned"}</p>
+          <p>Deposit: R${a.deposit}</p>
+          <p>Status: <span class="status" style="color:${color};">${a.status}</span></p>
+          <p>Proof: ${a.proof ? `<a href="${a.proof}" target="_blank">View</a>` : "N/A"}</p>
+          <p>Location: ${a.location || "Zone 1 Amigos Sonrise Building Room 111"}</p>
+        </div>
+        <div class="appointment-actions">
+          <button class="approve" onclick="updateStatus('${a.id}','approved')">Approve</button>
+          <button class="complete" onclick="updateStatus('${a.id}','completed')">Complete</button>
+          <input type="date" id="date-${a.id}" value="${a.assignedDate || ''}">
+          <button class="update-date" onclick="assignDate('${a.id}')">Update Date</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Update status
+window.updateStatus = async (id,status)=>{
+  try{
+    const docRef = doc(db,"bookings",id);
+    await updateDoc(docRef,{status: status});
+  }catch(err){
+    console.error(err);
+    alert("Failed to update status!");
+  }
+}
+
+// Assign date
+window.assignDate = async (id)=>{
+  const dateInput = document.getElementById(`date-${id}`);
+  const date = dateInput.value;
+  if(!date){
+    alert("Select a date first!");
+    return;
+  }
+  try{
+    const docRef = doc(db,"bookings",id);
+    await updateDoc(docRef,{assignedDate: date});
+    alert("Date updated!");
+  }catch(err){
+    console.error(err);
+    alert("Failed to update date!");
+  }
+}
+
+// Filter
+window.filterAppointments = (status)=>{
+  if(status==="all") displayAppointments(allAppointments);
+  else displayAppointments(allAppointments.filter(a=>a.status===status));
+}
+
+// Back
+window.goBack = ()=>{
+  window.location.href="admin_home.html";
+}
+</script>
+
+</body>
+</html>
